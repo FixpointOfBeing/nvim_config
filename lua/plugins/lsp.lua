@@ -45,8 +45,39 @@ return {
                     end
                 end,
             })
+            -- Python: pyright 只做类型检查，ruff 负责 lint + 格式化
+            vim.lsp.config("pyright", {
+                -- 加了 .venv，让只建了虚拟环境的目录也能当项目根，pyright 会自动识别解释器
+                root_markers = {
+                    ".venv", "pyrightconfig.json", "pyproject.toml", "setup.py",
+                    "setup.cfg", "requirements.txt", "Pipfile", ".git",
+                },
+                settings = {
+                    python = {
+                        analysis = {
+                            autoSearchPaths = true,
+                            useLibraryCodeForTypes = true,
+                            -- openFilesOnly 更省资源；想全项目检查改成 "workspace"
+                            diagnosticMode = "openFilesOnly",
+                            -- "off" | "basic" | "standard" | "strict"
+                            typeCheckingMode = "standard",
+                        },
+                    },
+                },
+            })
+            vim.lsp.config("ruff", {
+                init_options = {
+                    settings = {
+                        -- 项目里的 pyproject.toml / ruff.toml 优先于这里的设置
+                        configurationPreference = "filesystemFirst",
+                        organizeImports = true,
+                    },
+                },
+            })
+
             vim.lsp.enable("clangd")
             vim.lsp.enable("pyright")
+            vim.lsp.enable("ruff")
             vim.lsp.enable("lua_ls")
             vim.lsp.enable("ocamllsp")
             vim.lsp.config.tinymist = vim.lsp.config.tinymist or {}
@@ -184,15 +215,17 @@ return {
         end
     }, {
     "williamboman/mason.nvim",
-    cmd = "Mason",
+    -- 必须启动时加载：mason 在 setup 时把 bin 目录加到 PATH，
+    -- 否则 pyright/ruff 等通过 mason 安装的工具无法启动
+    lazy = false,
     opts = {
         registries = { "github:mason-org/mason-registry" },
         -- 自动安装的工具列表
         ensure_installed = {
             -- LSP
-            "lua_ls", "pyright", "tsserver", "rust_analyzer",     -- Formatters
-            "stylua", "black",                                    -- Linters
-            "eslint_d", "flake8"
+            "lua-language-server", "pyright", "rust-analyzer",
+            -- Formatter / Linter
+            "stylua", "ruff", "shfmt",
         }
     },
     config = function(_, opts)

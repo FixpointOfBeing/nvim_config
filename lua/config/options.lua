@@ -1,11 +1,47 @@
+-- 禁用 netrw，由 nvim-tree 接管文件浏览（需在加载 netrw 之前设置）
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
+-- mason 安装的 LSP / 格式化工具目录（早于插件加载，保证能被找到）
+local mason_bin = vim.fn.stdpath("data") .. "/mason/bin"
+if not vim.env.PATH:find(mason_bin, 1, true) then
+    vim.env.PATH = mason_bin .. ":" .. vim.env.PATH
+end
+
+-- Neovide 专属设置（字体见 ~/.config/neovide/config.toml 的 [font]）
 if vim.g.neovide then
-  vim.o.guifont = "JetBrains Mono:h8" -- 设置字体名称和大小
-  vim.g.neovide_cursor_animation_length = 0
-  vim.g.neovide_cursor_smooth_blink = false
-  vim.g.neovide_cursor_animate_command_line = false
-  vim.g.neovide_opacity = 0.95                 -- 透明度
-  vim.g.neovide_fullscreen = false             -- 是否全屏启动
-  vim.g.neovide_confirm_quit = true            -- 退出时是否确认
+    -- 刷新率（配合 config.toml 的 vsync = false）
+    vim.g.neovide_refresh_rate = 144
+    vim.g.neovide_refresh_rate_idle = 5
+
+    -- 窗口透明度
+    vim.g.neovide_opacity = 1
+
+    -- 光标动画（平滑）
+    vim.g.neovide_cursor_animation_length = 0.15
+    vim.g.neovide_cursor_short_animation_length = 0.04
+    vim.g.neovide_cursor_trail_size = 0.4
+    vim.g.neovide_cursor_animate_in_insert_mode = true
+    vim.g.neovide_cursor_animate_command_line = true
+    vim.g.neovide_cursor_smooth_blink = true
+
+    -- -- 光标粒子特效
+    -- vim.g.neovide_cursor_vfx_mode = "railgun"
+    -- vim.g.neovide_cursor_vfx_particle_lifetime = 0.5
+    -- vim.g.neovide_cursor_vfx_particle_density = 1.0
+    -- vim.g.neovide_cursor_vfx_particle_speed = 12.0
+    -- 
+    -- 滚动动画
+    vim.g.neovide_scroll_animation_length = 0.15
+
+    -- 退出确认
+    vim.g.neovide_confirm_quit = true
+
+    -- 不隐藏鼠标
+    vim.g.neovide_hide_mouse_when_typing = false
+
+    -- 缩放比例
+    vim.g.neovide_scale_factor = 1.0
 end
 
 -- 设置行号
